@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University & Student Directory</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 2rem; }
+
+        header { text-align: center; margin-bottom: 3rem; }
+        h1 { color: var(--primary); font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .subtitle { color: var(--text-muted); font-size: 1.1rem; }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section-title { font-size: 1.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #E5E7EB; padding-bottom: 0.5rem; }
+
+        /* Flexbox header for the Add Button */
+        .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid #E5E7EB; padding-bottom: 0.5rem; }
+        .section-header-row .section-title { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
+
+        /* Button Styling */
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; color: white; text-decoration: none; transition: background-color 0.2s; }
+        .btn-primary { background-color: var(--primary); }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        /* University Cards */
+        .uni-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-bottom: 4rem; }
+        .uni-card { background-color: var(--card-bg); border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); transition: transform 0.2s; }
+        .uni-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .uni-card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+        .uni-badge { display: inline-block; background-color: #EEF2FF; color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; }
+        .uni-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
+
+        /* Students Table */
+        .table-container { background-color: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 1rem 1.5rem; border-bottom: 1px solid #E5E7EB; }
+        th { background-color: #F9FAFB; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; }
+        tbody tr:hover { background-color: #F9FAFB; }
+        .student-name { font-weight: 500; color: var(--text-main); }
+        .action-link { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .action-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Academic Directory</h1>
+            <p class="subtitle">Manage Universities and Enrolled Students</p>
+        </header>
+
+        <h2 class="section-title">Universities</h2>
+        <div class="uni-grid">
+            {% for uni in universities %}
+            <div class="uni-card">
+                <h3>{{ uni.name }}</h3>
+                <div class="uni-badge">Est. {{ uni.established_years }}</div>
+                <p class="uni-desc">{{ uni.description }}</p>
+            </div>
+            {% empty %}
+            <p>No universities found.</p>
+            {% endfor %}
+        </div>
+
+        <div class="section-header-row">
+            <h2 class="section-title">Enrolled Students</h2>
+            <a href="{% url 'add_student' %}" class="btn btn-primary">+ Add New Student</a>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>University (Category)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td class="student-name">{{ student.full_name }}</td>
+                        <td>{{ student.first_name }}</td>
+                        <td>{{ student.last_name }}</td>
+                        <td>{{ student.university.name }}</td>
+                        <td>
+                            <a href="{% url 'student_detail' student.id %}" class="action-link">Edit / Delete &rarr;</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem; color: #6B7280;">No students enrolled yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>
