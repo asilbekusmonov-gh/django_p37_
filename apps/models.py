@@ -1,34 +1,32 @@
-from datetime import date
+from django.db.models import Model, ForeignKey, CASCADE, ImageField, DecimalField, \
+    PositiveIntegerField, CheckConstraint, Q, F
+from django.db.models.fields import CharField
 
-from django.db.models import Model, ManyToManyField, FileField, ForeignKey, CASCADE
-from django.db.models.fields import CharField, DateField, FloatField, TextField
 
-
-class Course(Model):
+class Category(Model):
     name = CharField(max_length=100)
-    price = FloatField()
-
-    class Meta:
-        verbose_name_plural = 'courses'
 
     def __str__(self):
         return f' {self.name}'
 
 
-class Student(Model):
-    first_name = CharField(max_length=100)
-    last_name = CharField(max_length=100)
-    phone = CharField(max_length=100)
-    birth_date = DateField(default=date.today)
-    passport_number = CharField(max_length=100)
-    passport_series = CharField(max_length=100)
-    course = ManyToManyField('apps.Course', blank=True)
+class Product(Model):
+    name = CharField(null=False, max_length=100, blank=False)
+    category = ForeignKey('apps.Category', on_delete=CASCADE, related_name='products')
+    image = ImageField(upload_to='products/%Y/%m/%d')
+    price = DecimalField(max_digits=10, decimal_places=2)
+    discount_price = DecimalField(max_digits=10, decimal_places=2, default=0,
+                                  help_text='Discount should be less than price')
+    shipping_cost = PositiveIntegerField(default=0)
 
-    def full_name(self):
-        return f'{self.first_name} {self.last_name}'
+    quantity = PositiveIntegerField(default=1)
 
+    @property
+    def is_in_stock(self):
+        return self.quantity > 0
 
-
-class Document(Model):
-    docs =  FileField(upload_to='students/%Y/%m/%d')
-    student = ForeignKey('apps.Student', CASCADE)
+    class Meta:
+        constraints = [
+            CheckConstraint(condition=Q(discount_price__lte=F('price')), name='check product price',
+                            violation_error_message='discount price should be less than price'),
+        ]
